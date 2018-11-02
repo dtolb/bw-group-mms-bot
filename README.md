@@ -1,6 +1,6 @@
 # Group MMS Bot
 
-Group MMS bot powered by [Bandwidth](http://dev.bandwidth.com).
+Group MMS bot powered by [Bandwidth](https://dev.bandwidth.com/v2-messaging/).
 
 If you want to learn more, please contact [openapi@bandwidth.com](mailto:openapi@bandwidth.com) or call (888) 686-9944.
 
@@ -17,8 +17,8 @@ Anything else is ignored and your chat continues as normal
 ## Deploy
 
 ### Pre Reqs
-* [Bandwidth Credentials](http://dev.bandwidth.com)
-* Bandwidth [`/application`](http://dev.bandwidth.com/howto/incomingCallandMessaging.html) configured with group messaging.
+* [Bandwidth Credentials](https://dev.bandwidth.com/v2-messaging/accountCredentials.html)
+* Bandwidth [`/application`](https://dev.bandwidth.com/v2-messaging/applications/about.html) configured with group messaging.
 
 ### Env Vars
 * `BANDWIDTH_USER_ID`
