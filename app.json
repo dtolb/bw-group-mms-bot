@@ -13,6 +13,12 @@
     },
     "BANDWIDTH_API_SECRET": {
       "description": "Your Bandwidth API Secret, like: ja35ijsadfoi"
+    },
+    "DEBUG": {
+      "description": "Debug parameters",
+      "value": "giphy_sms",
+      "required": false
     }
   }
+
 }
