@@ -14,7 +14,7 @@ function startServer() {
   app.get('/', function (req, res) {
     res.send(`Hello World 👋 🌎, be sure to set the callback url to http://${req.hostname}${CALLBACK_PATH}`);
   });
-  app.post('CALLBACK_PATH',
+  app.post(CALLBACK_PATH,
            bandwidth.sendAccepted,
            bandwidth.checkIfBodyIsArray,
            bandwidth.validateMessage,
