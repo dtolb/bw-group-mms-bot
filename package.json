@@ -1,0 +1,41 @@
+{
+  "name": "bw-group-gif-mms",
+  "version": "1.0.0",
+  "description": "A small lil application that adds gif commands to a group mms",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "DEBUG=giphy_sms nodemon index.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dtolb/bw-group-gif-mms.git"
+  },
+  "keywords": [
+    "node",
+    "sms",
+    "mms",
+    "messaging",
+    "bots",
+    "gif",
+    "giphy"
+  ],
+  "author": "Dan Tolbert",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dtolb/bw-group-gif-mms/issues"
+  },
+  "homepage": "https://github.com/dtolb/bw-group-gif-mms#readme",
+  "devDependencies": {
+    "nodemon": "^1.18.5"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
+    "debug": "^4.1.0",
+    "express": "^4.16.4",
+    "giphy-api": "^2.0.0",
+    "knuth-shuffle": "^1.0.8"
+  }
+}
