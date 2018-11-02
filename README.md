@@ -1,8 +1,17 @@
+<div align="center">
+
+
 # Group MMS Bot
+
+<a href="http://dev.bandwidth.com"><img src="https://s3.amazonaws.com/bwdemos/BW_Messaging.png"/></a>
+</div>
 
 Group MMS bot powered by [Bandwidth](https://dev.bandwidth.com/v2-messaging/).
 
 If you want to learn more, please contact [openapi@bandwidth.com](mailto:openapi@bandwidth.com) or call (888) 686-9944.
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 
 ## Usage Commands
 

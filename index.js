@@ -2,6 +2,7 @@ const bodyParser = require('body-parser');
 const debug = require('debug')('giphy_sms');
 const bandwidth = require('./bandwidth.js');
 const name = 'giphy_sms';
+const CALLBACK_PATH = '/callback/message';
 debug('booting %s', name);
 
 const express = require('express');
@@ -10,7 +11,10 @@ let app = express();
 function startServer() {
   debug('Starting Server');
   app.use(bodyParser.json());
-  app.post('/callback/message',
+  app.get('/', function (req, res) {
+    res.send(`Hello World 👋 🌎, be sure to set the callback url to http://${req.hostname}${CALLBACK_PATH}`);
+  });
+  app.post('CALLBACK_PATH',
            bandwidth.sendAccepted,
            bandwidth.checkIfBodyIsArray,
            bandwidth.validateMessage,
