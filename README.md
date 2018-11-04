@@ -71,13 +71,13 @@ The GIPHY API returns a list of GIF responses with various sizes and metadata  a
       "url": "https:\/\/..com\/.../cid={gifID}",
       "width": "358",
       "height": "200",
-      "size": "50867",
+      "size": "50867"
     },
     "...": {
       "url": "https:\/\/..com\/.../cid={gifID}",
       "width": "499",
       "height": "279",
-      "size": "108964",
+      "size": "108964"
     }
   }
 }
