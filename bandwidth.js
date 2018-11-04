@@ -56,9 +56,15 @@ const extractQuery = function (text) {
   return query;
 };
 
+
+/**
+* Search GIPHY for random GIF < maxGifSize
+* @returns {STRING} Returns GIF URL
+**/
 const getGifUrl = async (query) => {
   try {
     const gifs = await giphy.search(query);
+    // Search for random GIF < maxGifSize
     const gifUrl = searchGifResponse(gifs);
     return gifUrl;
   }
@@ -89,7 +95,7 @@ const searchGifResponse = (gifs) => {
   }
   debug('Gif Url: %s', gifUrl);
   return gifUrl;
-}
+};
 
 
 module.exports.sendAccepted = function (req, res, next) {
@@ -128,17 +134,26 @@ module.exports.validateMessage = (req, res, next) => {
   }
 };
 
+/**
+* Middleware the process the incoming text and look for GIF.
+* Once GIF is found, send it back to the group.
+* If no GIF is found, send a message letting the group know 😞
+**/
 module.exports.processMessage = async (req, res, next) => {
+  // Callbacks are arrays of 1, take firstr one
   const message = req.body[0];
+  // Extract anything after `@gif `
   const query = extractQuery(message.message.text);
+  // Serach giphy for
   const mediaUrl = await getGifUrl(query);
+  // Build Message to send
   const outMessage = {
     to            : buildToArray(message),
     from          : message.to,
     applicationId : message.message.applicationId
   };
   if (!mediaUrl) {
-    outMessage.text = `Unable to find gif for ${query}`;
+    outMessage.text = `😞 Unable to find gif for ${query}`;
   }
   else {
     outMessage.text = `GIF for: ${query}`;
@@ -148,8 +163,12 @@ module.exports.processMessage = async (req, res, next) => {
   next();
 };
 
+/**
+* Middleware to actualy send the Message in res.locals.outMessage;
+**/
 module.exports.sendMessage = async (req, res) => {
   const message = res.locals.outMessage;
+  // Make API request to send message
   const messageResponse = await sendMessage(message);
   debug(messageResponse);
   return;
