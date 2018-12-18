@@ -111,7 +111,7 @@ Bandwidth’s API takes a JSON request with a few parameters to send a group mes
 ##### Sample HTTP Request to Group Message API
 
 ```http
-POST https://api.catapult.inetwork.com/v2/users/{userId}/messages HTTP/1.1
+POST https://api.catapult.inetwork.com/v2/users/998800/messages HTTP/1.1
 Content-Type: application/json; charset=utf-8
 Authorization: {apiToken:apiSecret}
 
