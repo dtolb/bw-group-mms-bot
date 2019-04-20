@@ -13,7 +13,7 @@ if (!userId || !apiToken || !apiSecret ) {
 }
 
 const messageV2API = axios.create({
-  baseURL: `https://api.catapult.inetwork.com/v2/users/${userId}/messages`,
+  baseURL: `https://messaging.bandwidth.com/v2/accountss/${userId}/messages`,
   auth: {
     username: apiToken,
     password: apiSecret
@@ -119,13 +119,22 @@ module.exports.checkIfBodyIsArray = function (req, res, next) {
 };
 
 module.exports.validateMessage = (req, res, next) => {
+  const extract = str.match(/\[\[(.*)\]\]/).pop();
   const message = req.body[0];
-  const isIncomingMessage = (message && message.message && message.message.direction == 'in');
-  const hasGifCommand = (message && message.message && message.message.text.toLowerCase().startsWith('@gif '));
-  if (isIncomingMessage && hasGifCommand) {
+  const isDLR = (message && message.message && message.message.direction == 'out');
+  if (isDLR){
+    return;
+  }
+  const messageText = message.message.text.toLowerCase();
+  const isGifCommand = (messageText.startsWith('@gif '));
+  const isMTGCommand = messageText.match(/\[\[(.*)\]\]/).pop();
+  if (isGifCommand) {
     debug('Incoming Message with GIF Command!');
     next();
     return;
+  }
+  else if (isMTGCommand){
+
   }
   else {
     debug('Outbound message DLR or no GIF command');
