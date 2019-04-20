@@ -50,8 +50,7 @@ const searchScryFall = async cardName => {
 };
 
 const messageV2API = axios.create({
-//  baseURL: `https://messaging.bandwidth.com/v2/accountss/${userId}/messages`,
-  baseURL: `http://my-req-bin.herokuapp.com/1dcbavh1?userId=${userId}`,
+  baseURL: `https://api.catapult.inetwork.com/v2/users/${userId}/messages`,
   auth: {
     username: apiToken,
     password: apiSecret
