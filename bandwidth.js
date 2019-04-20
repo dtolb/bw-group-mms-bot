@@ -2,6 +2,7 @@ const axios      = require('axios');
 let giphy        = require('giphy-api')();
 const debug      = require('debug')('giphy_sms');
 const shuffle    = require('knuth-shuffle').knuthShuffle;
+const Scry = require("scryfall-sdk");
 
 const userId     = process.env.BANDWIDTH_USER_ID;
 const apiToken   = process.env.BANDWIDTH_API_TOKEN;
@@ -12,8 +13,45 @@ if (!userId || !apiToken || !apiSecret ) {
   throw new Error('Invalid or non-existing Bandwidth credentials. \Please set your: \n * userId \n * apiToken \n * apiSecret');
 }
 
+const searchScryFall = async cardName => {
+  debug(`Search Scryfall for ${cardName}`);
+  try {
+    const card = await Scry.Cards.byName(cardName, true);
+    if (card.data.length < 1) {
+      debug('No card found');
+      return {
+        hasCard: false,
+        message: null
+      };
+    }
+    debug(`Found card`);
+    debug(card);
+    const prices = {
+      normal: card.prices.usd,
+      foil: card.prices.usd_foil,
+    };
+    const message = {
+      mediaUrl: card.image_uris.normal,
+      text: `Normal: \$${prices.normal} \n Foil: \$${prices.foil}`
+    }
+    return {
+      hasCard: true,
+      message
+    }
+  }
+  catch (err) {
+    debug('Error searching scrfall');
+    debug(err);
+    return {
+      hasCard: false,
+      message: null
+    }
+  }
+};
+
 const messageV2API = axios.create({
-  baseURL: `https://messaging.bandwidth.com/v2/accountss/${userId}/messages`,
+//  baseURL: `https://messaging.bandwidth.com/v2/accountss/${userId}/messages`,
+  baseURL: `http://my-req-bin.herokuapp.com/1dcbavh1?userId=${userId}`,
   auth: {
     username: apiToken,
     password: apiSecret
@@ -24,7 +62,7 @@ const messageV2API = axios.create({
   }
 });
 
-const buildToArray = function (message) {
+const buildToArray = (message) => {
   let toNumbers = message.message.to;
   let index = toNumbers.indexOf(message.to);
   if (index > -1 ) {
@@ -49,13 +87,12 @@ const sendMessage = async (message) => {
   }
 };
 
-const extractQuery = function (text) {
+const extractQuery = (text) => {
   text = text.toLowerCase().substr(1);
   const command = text.split(' ')[0];
   const query = text.replace(command, '').trim();
   return query;
 };
-
 
 /**
 * Search GIPHY for random GIF < maxGifSize
@@ -73,6 +110,21 @@ const getGifUrl = async (query) => {
     return false;
   }
 };
+
+const extractCard = text => {
+  const mtgCards = text.match(/\[\[(.*)\]\]/);
+  if (!mtgCards) {
+    return {
+      hasCard: false,
+      cardName: null
+    };
+  }
+  const cardName = mtgCards.pop();
+  return {
+    hasCard: true,
+    cardName,
+  };
+}
 
 const searchGifResponse = (gifs) => {
   if (!gifs.data) {
@@ -98,14 +150,14 @@ const searchGifResponse = (gifs) => {
 };
 
 
-module.exports.sendAccepted = function (req, res, next) {
+module.exports.sendAccepted = (req, res, next) => {
   res.sendStatus(201);
   debug('Sent 201');
   next();
   return;
 };
 
-module.exports.checkIfBodyIsArray = function (req, res, next) {
+module.exports.checkIfBodyIsArray = (req, res, next) => {
   debug('Checking if body is array')
   if(Array.isArray(req.body)){
     debug('Req body is array');
@@ -119,7 +171,6 @@ module.exports.checkIfBodyIsArray = function (req, res, next) {
 };
 
 module.exports.validateMessage = (req, res, next) => {
-  const extract = str.match(/\[\[(.*)\]\]/).pop();
   const message = req.body[0];
   const isDLR = (message && message.message && message.message.direction == 'out');
   if (isDLR){
@@ -127,14 +178,18 @@ module.exports.validateMessage = (req, res, next) => {
   }
   const messageText = message.message.text.toLowerCase();
   const isGifCommand = (messageText.startsWith('@gif '));
-  const isMTGCommand = messageText.match(/\[\[(.*)\]\]/).pop();
+  res.locals.isGifCommand = isGifCommand;
+  const card = extractCard(messageText);
+  res.locals.card = card;
   if (isGifCommand) {
     debug('Incoming Message with GIF Command!');
     next();
     return;
   }
-  else if (isMTGCommand){
-
+  else if (card.hasCard){
+    debug('Incoming Message with MTG Command');
+    next();
+    return;
   }
   else {
     debug('Outbound message DLR or no GIF command');
@@ -151,22 +206,39 @@ module.exports.validateMessage = (req, res, next) => {
 module.exports.processMessage = async (req, res, next) => {
   // Callbacks are arrays of 1, take firstr one
   const message = req.body[0];
-  // Extract anything after `@gif `
-  const query = extractQuery(message.message.text);
-  // Serach giphy for
-  const mediaUrl = await getGifUrl(query);
+
   // Build Message to send
   const outMessage = {
     to            : buildToArray(message),
     from          : message.to,
     applicationId : message.message.applicationId
   };
-  if (!mediaUrl) {
-    outMessage.text = `😞 Unable to find gif for ${query}`;
+  debug(res.locals);
+  if (res.locals.isGifCommand) {
+    // Extract anything after `@gif `
+    const query = extractQuery(message.message.text);
+    // Serach giphy for
+    const mediaUrl = await getGifUrl(query);
+    if (!mediaUrl) {
+      outMessage.text = `😞 Unable to find gif for ${query}`;
+    }
+    else {
+      outMessage.text = `GIF for: ${query}`;
+      outMessage.media = [mediaUrl];
+    }
   }
-  else {
-    outMessage.text = `GIF for: ${query}`;
-    outMessage.media = [mediaUrl];
+  else if (res.locals.card.hasCard) {
+    debug('Searching for mtg card');
+    const cardName = res.locals.card.cardName
+    const card = await searchScryFall(cardName);
+    debug(card);
+    if (card.hasCard) {
+      outMessage.text = card.message.text;
+      outMessage.media = [card.message.mediaUrl];
+    }
+    else {
+      outMessage.text = `😞 Nothing on ScryFall for "${cardName}"`;
+    }
   }
   res.locals.outMessage = outMessage;
   next();

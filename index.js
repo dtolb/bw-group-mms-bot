@@ -11,7 +11,7 @@ let app = express();
 function startServer() {
   debug('Starting Server');
   app.use(bodyParser.json());
-  app.get('/', function (req, res) {
+  app.get('/', (req, res) => {
     res.send(`Hello World 👋 🌎, be sure to set the callback url to http://${req.hostname}${CALLBACK_PATH}`);
   });
   app.post(CALLBACK_PATH,
@@ -21,7 +21,7 @@ function startServer() {
            bandwidth.processMessage,
            bandwidth.sendMessage);
   /// catch 404 and forward to error handler
-  app.use(function (req, res, next) {
+  app.use((req, res, next) => {
     //debug(req)
     debug(req.body)
     debug(req.url)
@@ -31,7 +31,7 @@ function startServer() {
   });
 
   const port = process.env.PORT || 3000;
-  app.listen(port, process.env.HOST || "0.0.0.0", function () {
+  app.listen(port, process.env.HOST || "0.0.0.0", () => {
     console.log('Group Messaging Bot listening on port ' + port);
   });
 }
