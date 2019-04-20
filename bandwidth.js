@@ -118,7 +118,7 @@ const extractCard = text => {
       cardName: null
     };
   }
-  const cardName = mtgCards.pop();
+  const cardName = (mtgCards.pop()).trim();
   return {
     hasCard: true,
     cardName,
