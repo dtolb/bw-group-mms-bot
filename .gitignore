@@ -61,3 +61,5 @@ typings/
 .next
 creds.txt
 out.json
+
+playground.js
