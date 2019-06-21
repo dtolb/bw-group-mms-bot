@@ -4,20 +4,21 @@ const debug      = require('debug')('giphy_sms');
 const shuffle    = require('knuth-shuffle').knuthShuffle;
 const Scry = require("scryfall-sdk");
 
-const userId     = process.env.BANDWIDTH_USER_ID;
+const accountId   = process.env.BANDWIDTH_ACCOUNT_ID;
 const apiToken   = process.env.BANDWIDTH_API_TOKEN;
 const apiSecret  = process.env.BANDWIDTH_API_SECRET;
 const maxGifSize = 1500000;
 
-if (!userId || !apiToken || !apiSecret ) {
-  throw new Error('Invalid or non-existing Bandwidth credentials. \Please set your: \n * userId \n * apiToken \n * apiSecret');
+if (!accountId || !apiToken || !apiSecret) {
+  throw new Error('Invalid or non-existing Bandwidth credentials. \nPlease set your: \n * accountId \n * apiToken \n * apiSecret');
 }
 
 const searchScryFall = async cardName => {
   debug(`Search Scryfall for ${cardName}`);
   try {
     const card = await Scry.Cards.byName(cardName, true);
-    if (card.data.length < 1) {
+    debug(card)
+    if (card.data && card.data.length < 1) {
       debug('No card found');
       return {
         hasCard: false,
@@ -50,7 +51,7 @@ const searchScryFall = async cardName => {
 };
 
 const messageV2API = axios.create({
-  baseURL: `https://messaging.bandwidth.com/api/v2/users/${userId}/messages`,
+  baseURL: `https://messaging.bandwidth.com/api/v2/users/${accountId}/messages`,
   auth: {
     username: apiToken,
     password: apiSecret
